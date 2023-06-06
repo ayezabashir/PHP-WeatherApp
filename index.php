@@ -1,3 +1,17 @@
+<?php
+ $error = "";
+   if(array_key_exists('submit',$_GET)){
+      if(!$_GET['city']){
+        $error = "Input field is empty!";
+      }
+      if($_GET['city']){
+        $apiData = file_get_contents("https://api.openweathermap.org/data/2.5/weather?q=".$_GET['city']."&appid=b53fd676c39b2a23c8fd49807ca836dd");
+        $weatherArray = json_decode($apiData, true);
+        print_r($weatherArray);
+      }
+   }
+
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -20,7 +34,13 @@
             </p>
             <button class="btn btn-success" name="submit" type="submit">Search</button>
         </form>
-        <div class="output"></div>
+        <div class="output">
+            <?php
+              if (!empty($error)) {
+                echo '<div class="alert alert-danger" role="alert">' . $error . '</div>';
+              }
+            ?>
+        </div>
     </div>
 
     <!-- Optional JavaScript -->
