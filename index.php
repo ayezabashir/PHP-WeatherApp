@@ -1,5 +1,6 @@
 <?php
  $error = "";
+ $weather ="";
    if(array_key_exists('submit',$_GET)){
       if(!$_GET['city']){
         $error = "Input field is empty!";
@@ -7,7 +8,20 @@
       if($_GET['city']){
         $apiData = file_get_contents("https://api.openweathermap.org/data/2.5/weather?q=".$_GET['city']."&appid=b53fd676c39b2a23c8fd49807ca836dd");
         $weatherArray = json_decode($apiData, true);
-        print_r($weatherArray);
+        // C = K -273.15
+        $tempCelcius = $weatherArray['main']['temp'] -273;
+        $feelsLike = $weatherArray['main']['feels_like'] -273;
+        $weather="<div class='d-flex justify-content-between align-items-start'><h3>".$weatherArray['name'].", ".$weatherArray['sys']['country']."</h3><div><h2 class='mb-0'>".intval($tempCelcius)."&deg;C</h2><small>Feels like: <b>".intval($feelsLike)."&deg;C</b></small></div></div> <br/>";
+        
+        $weather .= "<p class='text-start'><b>Weather Condition : </b>".$weatherArray['weather']['0']['description']."<br/>";
+        $weather .= "<b>Atomic Pressure: </b>".$weatherArray['main']['pressure']." hpa <br/>";
+        $weather .= "<b>Wind Speed: </b>".$weatherArray['wind']['speed']." meter/sec <br/>";
+        $weather .= "<b>Cloudness: </b>".$weatherArray['clouds']['all']." % <br/>";
+        date_default_timezone_set('Asia/Karachi');
+        $sunrise = $weatherArray['sys']['sunrise'];
+        $sunset = $weatherArray['sys']['sunset'];
+        $weather .= "<b>Sunrise:</b> ".date("g:i a", $sunrise)."<br/><b> Sunset:</b> ".date("g:i a",$sunset)."<br/></p>";
+        
       }
    }
 
@@ -29,13 +43,18 @@
         <h1>Search Global Weather</h1>
         <form method="GET">
             <label for="city">Enter your City Name</label>
-            <p>
+            <p class="d-flex">
             <input type="text" name="city" id="city" class="form-control" placeholder="e.g. Lahore, Pakistan">
+            
+            <button class="btn" name="submit" type="submit">Search</button>
             </p>
-            <button class="btn btn-success" name="submit" type="submit">Search</button>
         </form>
         <div class="output">
             <?php
+              if(!empty($weather)){
+                echo '<div class="alert alert-secondary" role="alert">' . $weather . '</div>';
+              }
+
               if (!empty($error)) {
                 echo '<div class="alert alert-danger" role="alert">' . $error . '</div>';
               }
